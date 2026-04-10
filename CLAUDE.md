@@ -9,23 +9,63 @@ All data stays on-prem. No cloud calls. No exceptions.
 
 ## Current Status (as of April 2026)
 
-**The codebase is fully built and working.** All files exist under `garrison/`.
-Gary has been tested live against a Windows 11 host via WinRM.
+**The codebase is fully built, working, and published to GitHub** at
+https://github.com/RickD831/Garrison. All files exist under `garrison/`.
+Gary has been tested live against a Windows 11 host (`win11-test` @ 10.27.38.22)
+via WinRM and responds end-to-end through Open WebUI with live streaming.
 
-**What's working:**
-- Gary boots and responds to natural language queries
-- WinRM connection to Windows hosts (port 5985 HTTP for POC)
-- 16 tools all registered and callable by the LLM
+**What's working right now:**
+- Gary boots and responds to natural language queries in Open WebUI and CLI
+- WinRM connection to Windows hosts on port 5985 (HTTP/POC) via `svc_monitor`
+- **32 tools** all registered and callable (logs, auth, process, health,
+  security, network, summary, RAG — see Tools section below)
 - Context retention across a conversation (session active host)
 - Qdrant + Open WebUI running in Docker via Colima
 - `manage.py` CLI (promote, list-discovered, validate-config)
+- **Live activity trail streaming** — `server.py` uses `gary.stream()` to emit
+  a running log of which tool Gary is invoking (`> _• Running health check ✓_`)
+  as both visible italic content and `reasoning_content` deltas. Renders live
+  in Open WebUI as Gary works.
+- `.claude/launch.json` defines 5 preview-server entries (qdrant, open-webui,
+  garrison-server, garrison-agent, garrison-collector) so Claude Code can
+  `preview_start` them individually. Python entries wrap with
+  `bash -c "cd garrison && venv/bin/python ..."` because the config loader
+  resolves `agency.yaml` relative to cwd.
+- Auto-discovery path works for Windows: ask Gary about an unknown IP, it
+  probes ports, detects OS, tries default creds, stages result in
+  `discovered.yaml`. Operator then runs `manage.py promote <host>`.
+
+**Gotchas to remember next session:**
+- On macOS, `python` isn't on PATH — use `python3` or `garrison/venv/bin/python`.
+- Port 8000 conflicts: if `server.py` fails to bind, an old server is still
+  running. Fix: `lsof -ti:8000 | xargs kill` then `./garrison.sh server start`.
+  `./garrison.sh server restart` doesn't always catch the stale process.
+- Open WebUI does NOT render the non-standard `status` SSE field from
+  OpenAI-compatible endpoints — streaming activity has to come through as
+  `content` deltas (with `reasoning_content` as a bonus for newer builds).
+- `ENABLE_SIGNUP=true` is still set in `docker-compose.yml` — user intends
+  to flip it back to `false` once access is sorted. Not critical on dev box.
+- Two unused logo files live in `garrison/` with spaces in their names
+  (`Garrison logo.png`, `Gary the Snail.png`). The canonical versions are
+  in `garrison/docs/garrison-logo.png` and `garrison/docs/gary.png`, which
+  are what the README references. Safe to delete the spaced ones.
+- Design doc `garrison-design-v1.docx` and `garrison-infra.zip` were REMOVED
+  from the repo and from disk. If you need them back,
+  `git checkout f943162 -- garrison-design-v1.docx garrison-infra.zip`.
 
 **What's next before production:**
 - Switch Windows transport to HTTPS (port 5986) — needs self-signed cert on each target
 - Generate SSH key pairs for Linux hosts (`ssh-keygen -t ed25519 -f ~/.ssh/monitor_{hostname}`)
+  — **no Linux targets can be discovered or monitored until this is done**
 - Start the log collector (`./garrison.sh start`) so RAG history builds up
-- Replace the test password with a real service account credential
+- Replace the test password (`ThisIsATest69420!` in `.env`) with a real service account credential
 - Move from MacBook to Linux server — `garrison.sh` auto-detects OS and uses systemd on Linux
+- Flip `ENABLE_SIGNUP=false` in `docker-compose.yml`
+- (Optional) Theme Open WebUI with Garrison colors — CSS + logo volume mounts
+  already drafted in chat but not yet committed. Palette: `#00BFFF` primary,
+  `#0A0E14` bg, `#141923` panels, `#B8C5D1` steel text.
+- (Optional) Add default Open WebUI prompt suggestions to the `gary` model
+  so new chats land on Garrison-specific starter cards.
 
 ---
 
