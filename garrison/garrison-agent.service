@@ -1,0 +1,22 @@
+# /etc/systemd/system/garrison-agent.service
+# Gary — the Garrison LLM agent
+# Runs the collector/indexer in the background
+# The agent.py chat interface is launched on demand or via Open WebUI
+
+[Unit]
+Description=Garrison Agent — Gary (log collector + indexer)
+After=network.target ollama.service
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=/opt/garrison
+ExecStart=/opt/garrison/venv/bin/python collector/indexer.py
+Restart=on-failure
+RestartSec=30
+EnvironmentFile=/opt/garrison/.env
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

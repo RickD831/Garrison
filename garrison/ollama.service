@@ -1,0 +1,19 @@
+# /etc/systemd/system/ollama.service
+# Ollama runs bare metal for direct GPU access
+# Install Ollama first: curl -fsSL https://ollama.com/install.sh | sh
+
+[Unit]
+Description=Ollama LLM runtime (Garrison)
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USER
+ExecStart=/usr/local/bin/ollama serve
+Restart=on-failure
+RestartSec=10
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+Environment="OLLAMA_MODELS=/opt/garrison/models"
+
+[Install]
+WantedBy=multi-user.target

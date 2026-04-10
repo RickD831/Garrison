@@ -1,0 +1,11 @@
+langchain>=0.3
+langchain-community>=0.3
+langchain-ollama>=0.2
+langchain-qdrant>=0.2
+qdrant-client>=1.9
+pypsrp>=0.8
+paramiko>=3.4
+python-dotenv>=1.0
+pyyaml>=6.0
+fastapi>=0.111
+uvicorn>=0.30

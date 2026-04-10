@@ -1,0 +1,13 @@
+# Python virtual environments
+venv/
+.venv/
+
+# Claude Code session data
+.claude/
+
+# macOS
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc

@@ -1,0 +1,22 @@
+# Secrets — never commit
+.env
+
+# Per-agency config and discovery staging — never commit
+agency.yaml
+discovered.yaml
+
+# Docker volume data — Qdrant storage, Open WebUI models/cache
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Runtime
+logs/
+*.log
+.garrison-agent.pid
+.garrison-server.pid

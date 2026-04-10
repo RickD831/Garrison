@@ -1,0 +1,34 @@
+agency:
+  name: "Your Agency Name"
+
+defaults:
+  windows:
+    transport: winrm
+    port: 5986
+    auth:
+      method: service_account
+      username: "svc_monitor"
+      password_env: "WIN_SVC_PASSWORD"   # resolved from .env
+  linux:
+    transport: ssh
+    port: 22
+    auth:
+      method: key
+      username: "svc_monitor"
+      key_path: "~/.ssh/monitor_{hostname}"   # {hostname} substituted at runtime
+
+hosts:
+  - name: "fileserver01"
+    address: "192.168.10.20"
+    os: windows                  # inherits defaults.windows
+
+  - name: "dmz-web01"
+    address: "10.10.1.5"
+    os: windows
+    auth:                        # per-host override for DMZ
+      username: "svc_monitor_dmz"
+      password_env: "WIN_SVC_PASSWORD_DMZ"
+
+  - name: "appserver01"
+    address: "192.168.10.30"
+    os: linux                    # inherits defaults.linux
