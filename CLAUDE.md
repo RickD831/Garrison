@@ -420,7 +420,7 @@ To start via script: `./garrison.sh start`
 ## Open WebUI Integration (server.py)
 
 `server.py` is a FastAPI app that exposes Gary as an OpenAI-compatible API so
-Open WebUI can talk to the full agent (all 16 tools) instead of raw Ollama.
+Open WebUI can talk to the full agent (all 32 tools) instead of raw Ollama.
 
 **Run it:**
 ```bash
@@ -437,10 +437,44 @@ python server.py          # starts on port 8000
 
 **How it works:**
 - Open WebUI POSTs to `/v1/chat/completions` with the full message history
-- `server.py` passes the messages to the Gary LangGraph agent
-- Gary runs tool calls as needed, returns final answer
-- Response is returned in OpenAI format (streaming or blocking)
-- Note: streaming is faked (single chunk) since Gary doesn't stream internally
+- `server.py` passes the messages to Gary via `gary.stream(stream_mode="updates")`
+- Every tool Gary invokes is intercepted and emitted as a live status line
+- Final answer is streamed as regular content after a `---` separator
+- Blocking (non-streaming) mode still works via `stream: false`
+
+**Live activity trail:**
+When `stream: true`, users see Gary's work in real time before the final answer:
+
+```
+> _Gary is working..._
+> _• Thinking..._
+> _• Running health check_
+> _• Running health check ✓_
+> _• Checking failed services_
+> _• Checking failed services ✓_
+> _• Scanning open ports_
+> _• Scanning open ports ✓_
+
+---
+
+Here's the report for win11-test:
+- Memory: 8.2 GB used of 16 GB...
+```
+
+Tool labels come from `_TOOL_LABELS` in `server.py` — add a friendly label
+there whenever a new tool is added to the registry. The activity trail is
+emitted as BOTH visible italic content (universal fallback) and
+`reasoning_content` (rendered as a collapsible "Thinking" block by newer
+Open WebUI builds).
+
+**garrison.sh commands:**
+```bash
+./garrison.sh server start     # start API server
+./garrison.sh server stop      # stop it
+./garrison.sh server status    # check if running
+./garrison.sh logs server      # tail server.log
+./garrison.sh start            # starts everything including server
+```
 
 **garrison.sh commands:**
 ```bash

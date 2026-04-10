@@ -28,6 +28,20 @@ and summarize the result.
 - **"Compare fileserver01 and fileserver02"** → runs `compare_hosts`, diffs services/ports/software
 - **"Has this error happened before?"** → semantic search over Qdrant log history
 
+While Gary works, the chat UI shows a live activity trail so you can see
+exactly which tools he's running:
+
+```
+> _Gary is working..._
+> _• Running health check ✓_
+> _• Checking failed services ✓_
+> _• Scanning open ports ✓_
+
+---
+
+Here's the report for fileserver01...
+```
+
 ## Stack
 
 | Component | Choice |
